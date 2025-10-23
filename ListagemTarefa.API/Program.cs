@@ -69,11 +69,13 @@ public class Program
 
         var fileProvider = new FileExtensionContentTypeProvider();
         fileProvider.Mappings[".properties"] = "text/plain";
+
+        app.UseDefaultFiles();
         app.UseStaticFiles(new StaticFileOptions
         {
             ContentTypeProvider = fileProvider
         });
-
+        
         app.UseAuthorization();
 
         
