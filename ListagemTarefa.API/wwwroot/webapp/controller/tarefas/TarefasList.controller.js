@@ -2,8 +2,9 @@ sap.ui.define([
     "sap/ui/core/mvc/Controller",
     "sap/ui/model/json/JSONModel",
     "root/services/tarefas/TarefasServico",
-    "sap/m/MessageToast"
-], (Controller, JSONModel, TarefasServico, MessageToast) => {
+    "sap/m/MessageToast",
+    "sap/m/MessageBox",
+], (Controller, JSONModel, TarefasServico, MessageToast, MessageBox) => {
     "use strict";
 
     const pageSizeData = [
@@ -47,7 +48,7 @@ sap.ui.define([
             this.getView().setModel(this.paginationModel, "pagination");
 
             const oRouter = this.getOwnerComponent().getRouter();
-			oRouter.getRoute("overview").attachPatternMatched(this.onPatternMatched, this);            
+            oRouter.getRoute("overview").attachPatternMatched(this.onPatternMatched, this);
         },
 
         onPatternMatched(oEvent) {
@@ -60,8 +61,9 @@ sap.ui.define([
                 orderType: "asc",
                 search: "",
             });
+            this.tarefasModel.setData([]);
             this.listarTarefas();
-		},
+        },
 
         listarTarefas() {
             const tarefasModel = this.tarefasModel;
@@ -80,19 +82,40 @@ sap.ui.define([
                 order: orderType,
             };
             const oResourceBundle = this.getView().getModel("i18n").getResourceBundle();
+            const escopo = this;
+            const onSincronizarDadosButtonPress = this.onSincronizarDadosButtonPress;
             view.setBusy(true);
             TarefasServico.obterTarefas(urlParams)
                 .then(function (response) {
-                    if (page > 1 && !response?.length){
+                    if (page > 1 && !response?.length) {
                         paginationModel.setProperty("/page", page - 1);
                         paginationModel.setProperty("/maxPage", page - 1);
                         const message = oResourceBundle.getText("noMoreRecords");
                         MessageToast.show(message);
                     } else {
-                        if (page === 1 && !response?.length){
-                            paginationModel.setProperty("/maxPage", 1);
-                            const message = oResourceBundle.getText("noMoreRecords");
-                            MessageToast.show(message);
+                        if (page === 1 && !response?.length) {
+                            if (!search) {
+                                const title = oResourceBundle.getText("syncDataTitle");
+                                const message = oResourceBundle.getText("firstSyncDataMessage");
+                                MessageBox.confirm(message, {
+                                    title: title,
+                                    actions: [
+                                        sap.m.MessageBox.Action.YES,
+                                        sap.m.MessageBox.Action.NO
+                                    ],
+                                    emphasizedAction: sap.m.MessageBox.Action.YES,
+                                    onClose: function (oAction) {
+                                        if (oAction === sap.m.MessageBox.Action.YES) {
+                                            onSincronizarDadosButtonPress.call(escopo, null, false);
+                                        }
+                                    }
+                                });
+                            }
+                            else {
+                                paginationModel.setProperty("/maxPage", 1);
+                                const message = oResourceBundle.getText("noMoreRecords");
+                                MessageToast.show(message);
+                            }
                         }
                         tarefasModel.setData(response);
                     }
@@ -100,14 +123,14 @@ sap.ui.define([
                 .catch(function (error) {
                     MessageToast.show(error);
                 })
-                .finally(function(){
+                .finally(function () {
                     view.setBusy(false);
                 });
         },
 
         _debounceTimer: null,
 
-        onLiveChangeTarefas: function(oEvent) {
+        onLiveChangeTarefas: function (oEvent) {
             const sQuery = oEvent.getParameter("newValue");
 
             if (this._debounceTimer) {
@@ -119,25 +142,25 @@ sap.ui.define([
             }, 500);
         },
 
-        _executeSearch: function(sQuery) {
+        _executeSearch: function (sQuery) {
             this.paginationModel.setProperty("/page", 1);
             this.paginationModel.setProperty("/maxPage", Number.MAX_SAFE_INTEGER);
             this.paginationModel.setProperty("/search", sQuery);
             this.listarTarefas();
         },
 
-        onSearchTarefas: function(oEvent) {
+        onSearchTarefas: function (oEvent) {
             const sQuery = oEvent.getParameter("query");
             this._executeSearch(sQuery);
         },
 
-        onPressPreviousPage: function(){
+        onPressPreviousPage: function () {
             const page = this.paginationModel.getProperty("/page");
             this.paginationModel.setProperty("/page", page - 1);
             this.listarTarefas();
         },
 
-        onPressNextPage: function(){
+        onPressNextPage: function () {
             const page = this.paginationModel.getProperty("/page");
             this.paginationModel.setProperty("/page", page + 1);
             this.listarTarefas();
@@ -153,10 +176,67 @@ sap.ui.define([
             });
         },
 
-        onSelectChangePaginationData: function(){
+        onSelectChangePaginationData: function () {
             this.paginationModel.setProperty("/page", 1);
             this.paginationModel.setProperty("/maxPage", Number.MAX_SAFE_INTEGER);
             this.listarTarefas();
+        },
+
+        onSincronizarDadosButtonPress: function (oEvent, showConfirm = true) {
+            const oResourceBundle = this.getView().getModel("i18n").getResourceBundle();
+            const title = oResourceBundle.getText("syncDataTitle");
+            const message = oResourceBundle.getText("syncDataMessage");
+            const view = this.getView();
+            const tarefasModel = this.tarefasModel;
+            const paginationModel = this.paginationModel;
+            const listarTarefas = this.listarTarefas;
+            const escopo = this;
+            const syncData = function () {
+                view.setBusy(true);
+                TarefasServico.sincronizarDados()
+                    .then(function () {
+                        paginationModel.setData({
+                            page: 1,
+                            pageSize: 10,
+                            minPage: 1,
+                            maxPage: Number.MAX_SAFE_INTEGER,
+                            orderColumn: "id",
+                            orderType: "asc",
+                            search: "",
+                        });
+                        tarefasModel.setData([]);
+                        listarTarefas.call(escopo);
+                        const sMessage = oResourceBundle.getText("successfulSyncData");
+                        MessageToast.show(sMessage)
+                    })
+                    .catch(function (error) {
+                        MessageToast.show(error);
+                    })
+                    .finally(function () {
+                        view.setBusy(false);
+                    });
+            };
+            if (showConfirm) {
+                MessageBox.confirm(message, {
+                    title: title,
+                    actions: [
+                        sap.m.MessageBox.Action.YES,
+                        sap.m.MessageBox.Action.NO
+                    ],
+                    emphasizedAction: sap.m.MessageBox.Action.NO,
+                    onClose: function (oAction) {
+                        if (oAction === sap.m.MessageBox.Action.YES) {
+                            syncData();
+                        }
+                    },
+                });
+            }
+            else {
+                syncData();
+            }
+
+
+
         }
 
     });

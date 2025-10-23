@@ -66,6 +66,13 @@
                     change=".onSelectChangePaginationData">
                     <core:Item key="{orderType>}" text="{orderType>}" />
                 </Select>
+                <ToolbarSpacer />
+                <Button
+                    icon="sap-icon://commission-check"
+                    text="{i18n>syncData}"
+                    type="Emphasized"
+                    press=".onSincronizarDadosButtonPress"
+                />
             </OverflowToolbar>
         </infoToolbar>
         <columns>

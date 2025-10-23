@@ -7,7 +7,8 @@ sap.ui.define([
         ? "https://localhost:7075" // Utiliza basePath padrão
         : ""; // Utiliza basePath atual
 
-    const endpoint = `${basePath}/todos`;
+    const endpointSync = `${basePath}/sync`;
+    const endpointTodos = `${basePath}/todos`;
 
     return {
         obterTarefas({ title = "" } = {}) {
@@ -20,7 +21,7 @@ sap.ui.define([
             const searchParamsString = searchParams.toString();
 
             return new Promise(function (resolve, reject) {
-                fetch(endpoint + (searchParamsString ? ("?" + searchParamsString) : ""))
+                fetch(endpointTodos + (searchParamsString ? ("?" + searchParamsString) : ""))
                     .then(function(response) {
                         if (!response.ok) {
                             throw new Error(response.statusText);
@@ -38,7 +39,7 @@ sap.ui.define([
 
         obterTarefaPorId(tarefaId){
             return new Promise(function(resolve, reject) {
-                fetch(`/todos/${tarefaId}`)
+                fetch(`${endpointTodos}/${tarefaId}`)
                     .then(function (response) {
                         if (!response.ok) {
                             throw new Error(response.statusText);
@@ -56,7 +57,7 @@ sap.ui.define([
 
         atualizarTarefaStatusCompleted(tarefaId){
             return new Promise(function (resolve, reject) {
-                fetch(`/todos/${tarefaId}`, { method: "PUT" })
+                fetch(`${endpointTodos}/${tarefaId}`, { method: "PUT" })
                     .then(function (response) {
                         if (!response.ok) {
                             if (response.status === 400){
@@ -68,6 +69,21 @@ sap.ui.define([
                     })
                     .then(function(json) {
                         reject(json);
+                    })
+                    .catch(function(error) {
+                        reject(error.message);
+                    })
+            });
+        },
+
+        sincronizarDados(){
+            return new Promise(function (resolve, reject) {
+                fetch(`${endpointSync}`, { method: "POST" })
+                    .then(function (response) {
+                        if (!response.ok) {
+                            throw new Error(response.statusText);
+                        }
+                        resolve();
                     })
                     .catch(function(error) {
                         reject(error.message);

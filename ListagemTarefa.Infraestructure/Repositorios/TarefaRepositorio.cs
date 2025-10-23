@@ -18,7 +18,14 @@ public class TarefaRepositorio : ITarefaRepositorio
 
     public async Task AdicionarAsync(IEnumerable<Tarefa> tarefas)
     {
-        _context.Tarefas.ExecuteDelete();
+        if (_context.Database.ProviderName == "Microsoft.EntityFrameworkCore.InMemory")
+        {
+            _context.Tarefas.RemoveRange(_context.Tarefas);
+        }
+        else
+        {
+            await _context.Tarefas.ExecuteDeleteAsync();
+        }
 
         _context.Tarefas.AddRange(tarefas);
 
