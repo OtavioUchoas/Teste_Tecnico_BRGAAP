@@ -3,6 +3,12 @@ sap.ui.define([
 ], function () {
     "use strict";
 
+    const basePath = window.location.hostname === "127.0.0.1"
+        ? "https://localhost:7075" // Utiliza basePath padrão
+        : ""; // Utiliza basePath atual
+
+    const endpoint = `${basePath}/todos`;
+
     return {
         obterTarefas({ title = "" } = {}) {
             let searchParams = new URLSearchParams(arguments[0] || {});
@@ -14,7 +20,7 @@ sap.ui.define([
             const searchParamsString = searchParams.toString();
 
             return new Promise(function (resolve, reject) {
-                fetch("/todos" + (searchParamsString ? ("?" + searchParamsString) : ""))
+                fetch(endpoint + (searchParamsString ? ("?" + searchParamsString) : ""))
                     .then(function(response) {
                         if (!response.ok) {
                             throw new Error(response.statusText);

@@ -98,7 +98,7 @@ sap.ui.define([
                     }
                 })
                 .catch(function (error) {
-                    debugger;
+                    MessageToast.show(error);
                 })
                 .finally(function(){
                     view.setBusy(false);
