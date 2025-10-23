@@ -1,0 +1,122 @@
+<mvc:View
+    controllerName="root.controller.tarefas.TarefasList"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:mvc="sap.ui.core.mvc"
+    busyIndicatorDelay="0">
+    <Table
+        id="tarefasList"
+        class="sapUiResponsiveMargin"
+        width="auto"
+        alternateRowColors="true"
+        items="{
+				path : 'tarefas>/'
+			}">
+        <headerToolbar>
+            <Toolbar>
+                <Title text="{i18n>tarefasListTitle}" />
+                <ToolbarSpacer />
+                <SearchField
+                    width="50%"
+                    value="{pagination>/search}"
+                    search=".onSearchTarefas"
+                    liveChange=".onLiveChangeTarefas" />
+            </Toolbar>
+        </headerToolbar>
+        <infoToolbar>
+            <OverflowToolbar>
+                <HBox alignItems="Center">
+                    <Button
+                        enabled="{= ${pagination>/page} > ${pagination>/minPage} }"
+                        icon="sap-icon://arrow-left"
+                        type="Emphasized"
+                        width="30px"
+                        press=".onPressPreviousPage"
+                    />
+                    <Text class="sapUiTinyMarginBeginEnd" text="{i18n>page} {pagination>/page}" />
+                    <Button
+                        enabled="{= ${pagination>/page} &lt; ${pagination>/maxPage} }"
+                        icon="sap-icon://arrow-right"
+                        type="Emphasized"
+                        width="30px"
+                        press=".onPressNextPage"
+                    />
+                </HBox>
+                <ToolbarSpacer />
+                <Select
+                    resetOnMissingKey="true"
+                    selectedKey="{pagination>/pageSize}"
+                    items="{pageSize>/}"
+                    change=".onSelectChangePaginationData">
+                    <core:Item key="{pageSize>}" text="{pageSize>}" />
+                </Select>
+                <ToolbarSpacer />
+                <Select
+                    resetOnMissingKey="true"
+                    selectedKey="{pagination>/orderColumn}"
+                    items="{orderColumn>/}"
+                    change=".onSelectChangePaginationData">
+                    <core:Item key="{orderColumn>}" text="{orderColumn>}" />
+                </Select>
+                <ToolbarSpacer />
+                <Select
+                    resetOnMissingKey="true"
+                    selectedKey="{pagination>/orderType}"
+                    items="{orderType>/}"
+                    change=".onSelectChangePaginationData">
+                    <core:Item key="{orderType>}" text="{orderType>}" />
+                </Select>
+            </OverflowToolbar>
+        </infoToolbar>
+        <columns>
+            <Column
+                hAlign="End"
+                minScreenWidth="Small"
+                demandPopin="true"
+                width="5em">
+                <Text text="{i18n>tarefas.columnId}" />
+            </Column>
+            <Column
+                minScreenWidth="Tablet"
+                demandPopin="true">
+                <Text text="{i18n>tarefas.columnTitle}" />
+            </Column>
+            <Column
+                hAlign="Center"
+                minScreenWidth="Small"
+                demandPopin="true">
+                <Text text="{i18n>tarefas.columnCompleted}" />
+            </Column>
+            <Column
+                hAlign="End"
+                minScreenWidth="Small"
+                demandPopin="true"
+                width="9em">
+                <Text text="{i18n>tarefas.columnUserId}" />
+            </Column>
+            <Column
+                hAlign="Center"
+                minScreenWidth="Tablet"
+                demandPopin="true">
+                <Text text="{i18n>tarefas.columnDetails}" />
+            </Column>
+        </columns>
+        <items>
+            <ColumnListItem highlight="{= !!${tarefas>completed} ? 'Success' : 'Warning' }">
+                <cells>
+                    <ObjectNumber number="{tarefas>id}" />
+                    <Text text="{tarefas>title}" />
+                    <CheckBox selected="{tarefas>completed}" displayOnly="true" />
+                    <ObjectNumber number="{tarefas>userId}" emphasized="false" />
+                    <Button
+                        icon="sap-icon://detail-view"
+                        type="Emphasized"
+                        width="50px"
+                        tooltip="{i18n>tarefas.tooltipDetails}"
+                        press=".onPressTarefasDetail"
+                    />
+                </cells>
+            </ColumnListItem>
+        </items>
+    </Table>
+</mvc:View>

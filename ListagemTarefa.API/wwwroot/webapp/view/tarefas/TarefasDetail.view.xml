@@ -1,0 +1,46 @@
+<mvc:View
+    controllerName="root.controller.tarefas.TarefasDetail"
+    xmlns="sap.m"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns:f="sap.ui.layout.form"
+    busyIndicatorDelay="0">
+    <Page
+        title="{i18n>tarefaDetailPageTitle}"
+        showNavButton="true"
+        navButtonPress=".onNavBack">
+        <VBox class="sapUiSmallMargin">
+            <f:SimpleForm
+                editable="false"
+                layout="ResponsiveGridLayout"
+                title="{i18n>tarefa}"
+                labelSpanXL="3"
+                labelSpanL="3"
+                labelSpanM="3"
+                labelSpanS="12"
+                adjustLabelSpan="false"
+                emptySpanXL="4"
+                emptySpanL="4"
+                emptySpanM="4"
+                emptySpanS="0"
+                columnsXL="1"
+                columnsL="1"
+                columnsM="1"
+                singleContainerFullSize="false">
+                <f:content>
+                    <Label text="{i18n>tarefas.id}" />                        
+                    <ObjectNumber number="{tarefa>/id}" />
+                    <Label text="{i18n>tarefas.title}" />
+                    <Text text="{tarefa>/title}" />
+                    <Label text="{i18n>tarefas.userId}" />
+                    <Text text="{tarefa>/userId}" />
+                    <Label class="sapUiTinyMarginTop" text="{i18n>tarefas.completed}" />
+                    <Switch 
+                        customTextOn="{i18n>yes}" 
+                        customTextOff="{i18n>no}" 
+                        state="{tarefa>/completed}"
+                        change=".onSwitchChangeTarefaCompleted" />
+                </f:content>
+            </f:SimpleForm>
+        </VBox>
+    </Page>
+</mvc:View>
