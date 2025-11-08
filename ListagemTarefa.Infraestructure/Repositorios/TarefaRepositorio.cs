@@ -1,4 +1,4 @@
-﻿using ListagemTarefa.Domain.Entidades;
+using ListagemTarefa.Domain.Entidades;
 using ListagemTarefa.Domain.Enums;
 using ListagemTarefa.Domain.Modelos;
 using ListagemTarefa.Domain.Repositorios;
@@ -43,6 +43,7 @@ public class TarefaRepositorio : ITarefaRepositorio
 
          return tarefa;
     }
+
 
     public async Task<int> QuantidadeNaoCompletadasDoUsuarioAsync(int userId)
     {
@@ -101,8 +102,30 @@ public class TarefaRepositorio : ITarefaRepositorio
         return tarefas;
 
     }
+    
+    public Task<int> ObterQuantidadeTodosASync(ParametrosBuscaTarefa parametrosBusca)
+    {
+      var query = _context.Tarefas.AsQueryable();
+      if (parametrosBusca.UserId.HasValue)
+      {
+          query = query.Where(x => x.UserId == parametrosBusca.UserId.Value);
+      }
+      
+      if (parametrosBusca.Id.HasValue)
+      {
+          query = query.Where(x => x.Id ==  parametrosBusca.Id.Value);
+      }
 
+      if (!string.IsNullOrWhiteSpace(parametrosBusca.Title))
+      {
+          query = query.Where(x => x.Title.ToLower().Contains(parametrosBusca.Title.ToLower()));
+      }
 
+      if (parametrosBusca.Completed.HasValue)
+      {
+          query = query.Where(x => x.Completed == parametrosBusca.Completed.Value);
+      }
 
-
+      return query.CountAsync();
+    }
 }
