@@ -1,4 +1,5 @@
-﻿using ListagemTarefa.Application.Interfaces;
+﻿using ListagemTarefa.Application.Dtos;
+using ListagemTarefa.Application.Interfaces;
 using ListagemTarefa.Domain.Entidades;
 using ListagemTarefa.Domain.Modelos;
 using ListagemTarefa.Domain.Repositorios;
@@ -54,5 +55,11 @@ public class TarefaServico : ITarefaServico
         var tarefas = await _tarefaRepositorio.ObterTodosAsync(parametrosBusca);
 
         return tarefas;
+    }
+
+    public async Task<int> ObterQuantidadeTodosASync(ParametrosBuscaTarefa parametrosBusca)
+    {
+      var quantidade = await _tarefaRepositorio.ObterQuantidadeTodosASync(parametrosBusca);
+      return quantidade;
     }
 }

@@ -33,7 +33,7 @@
                         width="30px"
                         press=".onPressPreviousPage"
                     />
-                    <Text class="sapUiTinyMarginBeginEnd" text="{i18n>page} {pagination>/page}" />
+                    <Text class="sapUiTinyMarginBeginEnd" text="{i18n>page} {pagination>/page} de {pagination>/maxPage}" />
                     <Button
                         enabled="{= ${pagination>/page} &lt; ${pagination>/maxPage} }"
                         icon="sap-icon://arrow-right"
